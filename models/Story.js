@@ -31,4 +31,5 @@ const StorySchema = new Schema({
     default: Date.now
   }
 });
+
 module.exports = Story = mongoose.model("stories", StorySchema);
