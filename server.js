@@ -28,6 +28,14 @@ mongoose
   })
   .catch(err => console.log(err));
 
+let multer = require('multer')
+let GridFsStorage = require('multer-gridfs-storage')
+let Grid = require('gridfs-stream')
+Grid.mongo = mongoose.mongo
+var gfs = null
+var storage = null
+var upload = null
+
 // Passport middleware
 app.use(passport.initialize());
 // Passport config
@@ -37,17 +45,13 @@ app.use("/api/users", users);
 app.use("/api/stories", stories);
 
 const port = process.env.PORT || 5000; // process.env.port is Heroku's port if you choose to deploy the app there
-app.listen(port, () => console.log('Server up and running on port ${port}!'));
+app.listen(port, () => console.log('Server up and running on port ' + port + '!'));
 
 function initGridFS() {
     // PDF file management
-    let multer = require('multer')
-    let GridFsStorage = require('multer-gridfs-storage')
-    let Grid = require('gridfs-stream')
-    Grid.mongo = mongoose.mongo
-    let gfs = Grid(mongoose.connection.db)
-    console.log('Initialized GridFS successfully!')
-    let storage = GridFsStorage({
+    gfs = Grid(mongoose.connection.db)
+
+    storage = GridFsStorage({
         gfs: gfs,
         db: mongoose.connection.db,
         filename: (req, file, cb) => {
@@ -59,7 +63,7 @@ function initGridFS() {
         },
         root: 'ctFiles'
     })
-    let upload = multer({
+    upload = multer({
         storage: storage
     }).single('file')
 
@@ -90,4 +94,13 @@ function initGridFS() {
             }
         })
     })
+
+    app.delete('/file/:filename', (req, res) => {
+        gfs.remove({filename: req.params.filename}, (err) => {
+            if (err) return res.status(500).json({success: false})
+            return res.json({success: true})
+        })
+    })
+
+    console.log('Initialized GridFS successfully!')
 }
