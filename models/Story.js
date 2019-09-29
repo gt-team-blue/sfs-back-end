@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const ObjectId = mongoose.Schema.Types.ObjectId;
 const Schema = mongoose.Schema;
 // Create Schema
 const StorySchema = new Schema({
@@ -11,12 +12,12 @@ const StorySchema = new Schema({
     required: true
   },
   storyPointer: {
-    type: String,
-    required: true
+    type: ObjectId,
+    default: null
   },
   coverImagePointer: {
-    type: String,
-    default: String
+    type: ObjectId,
+    default: null
   },
   editAccess: {
     type: Array,
