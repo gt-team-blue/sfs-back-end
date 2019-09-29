@@ -85,12 +85,12 @@ router.get('/download/:storyId', (req, res) => {
             gfs.files.find({_id: story.storyPointer}).toArray(function(err, files) {
                 if(!files || files.length == 0) {
                     return res.status(404).json({success: false, data: "error"});
-                    var readstream = gfs.createReadStream({
-                        filename: files[0].filename
-                    });
-                    res.set('Content-Type', files[0].contentType);
-                    return readstream.pipe(res);
                 }
+                var readstream = gfs.createReadStream({
+                    filename: files[0].filename
+                });
+                res.set('Content-Type', files[0].contentType);
+                return readstream.pipe(res);
             });
         }
     });
