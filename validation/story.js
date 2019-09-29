@@ -4,13 +4,13 @@ module.exports = function validateRegisterInput(data) {
     let errors = {};
 
     data.title = !isEmpty(data.title) ? data.title : "";
-    data.creator = !isEmpty(data.creator) ? data.creator : "";
+    data.creatorEmail = !isEmpty(data.creatorEmail) ? data.creatorEmail : "";
 
     if (Validator.isEmpty(data.title)) {
         errors.title = "Title field is required";
     }
-    if (Validator.isEmpty(data.creator)) {
-        errors.email = "Email field is required";
+    if (Validator.isEmpty(data.creatorEmail)) {
+        errors.creatorEmail = "Creator email field is required";
     }
 
     return {

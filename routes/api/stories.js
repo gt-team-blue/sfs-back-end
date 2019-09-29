@@ -150,7 +150,8 @@ router.post('/create', (req, res) => {
     }
     const newStory = new Story();
     newStory.title = req.body.title;
-    newStory.creator = req.body.creator;
+    newStory.creator = req.body.creatorEmail;
+    newStory.editAccess.push(req.body.creatorEmail);
     newStory.save()
         .then(story => res.json(story))
         .catch(err => console.log(err));
@@ -310,12 +311,12 @@ Example Return Packet
 }
 */
 router.get('/storyFromId', (req, res) => {
-    if (req.body.id != null){
-        Story.find({_id: req.body.id},(err, stories) => {
+    if (req.body.id != null) {
+        Story.find({_id: req.body.id}, (err, stories) => {
             if (err != null) {
                 console.log(err);
                 res.status(400).json({success: false, data: err});
-            } else if (story.length == 0) {
+            } else if (stories.length == 0) {
                 res.status(400).json({success: false, data: "Story with that id not found"});
             } else {
                 res.status(200).json({success: true, data: stories});
@@ -323,6 +324,23 @@ router.get('/storyFromId', (req, res) => {
         });
     } else {
         res.status(400).json({success: false, data: "Please enter an id number"});
+    }
+})
+
+router.get('/storiesByEditor', (req, res) => {
+    if (req.body.userEmail != null) {
+        Story.find({editAccess: req.body.userEmail}, (err, stories) => {
+            if (err != null) {
+                console.log(err);
+                res.status(400).json({success: false, data: err});
+            } else if (stories.length == 0) {
+                res.status(400).json({success: false, data: "Story with that id not found"});
+            } else {
+                res.status(200).json({success: true, data: stories});
+            }
+        });
+    } else {
+        res.status(400).json({success: false, data: "Please enter a user email"})
     }
 })
 
