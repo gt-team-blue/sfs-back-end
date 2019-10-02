@@ -311,8 +311,8 @@ Example Return Packet
 }
 */
 router.get('/storyFromId', (req, res) => {
-    if (req.params.id != null) {
-        Story.find({_id: req.params.id}, (err, stories) => {
+    if (req.query.id != null) {
+        Story.find({_id: req.query.id}, (err, stories) => {
             if (err != null) {
                 console.log(err);
                 res.status(400).json({success: false, data: err});
@@ -328,8 +328,8 @@ router.get('/storyFromId', (req, res) => {
 })
 
 router.get('/storiesByEditor', (req, res) => {
-    if (req.params.userEmail != null) {
-        Story.find({editAccess: req.params.userEmail}, (err, stories) => {
+    if (req.query.userEmail != null) {
+        Story.find({editAccess: req.query.userEmail}, (err, stories) => {
             if (err != null) {
                 console.log(err);
                 res.status(400).json({success: false, data: err});
