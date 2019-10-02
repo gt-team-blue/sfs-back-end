@@ -257,7 +257,7 @@ Example Return Packet
     ]
 }
 */
-router.get('/storiesWithTags', (req, res) => {
+router.post('/storiesWithTags', (req, res) => {
     if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
         Story.find({}, (err, stories) => {
             if (err != null) {
@@ -311,8 +311,8 @@ Example Return Packet
 }
 */
 router.get('/storyFromId', (req, res) => {
-    if (req.body.id != null) {
-        Story.find({_id: req.body.id}, (err, stories) => {
+    if (req.params.id != null) {
+        Story.find({_id: req.params.id}, (err, stories) => {
             if (err != null) {
                 console.log(err);
                 res.status(400).json({success: false, data: err});
@@ -328,8 +328,8 @@ router.get('/storyFromId', (req, res) => {
 })
 
 router.get('/storiesByEditor', (req, res) => {
-    if (req.body.userEmail != null) {
-        Story.find({editAccess: req.body.userEmail}, (err, stories) => {
+    if (req.params.userEmail != null) {
+        Story.find({editAccess: req.params.userEmail}, (err, stories) => {
             if (err != null) {
                 console.log(err);
                 res.status(400).json({success: false, data: err});
