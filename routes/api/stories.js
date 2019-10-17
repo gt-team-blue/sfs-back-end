@@ -42,7 +42,7 @@ router.post('/upload/:storyId', upload, (req, res) => {
     Story.findOne({_id: req.params.storyId},(err, story) => {
         if (err != null) {
             console.log(err);
-            res.status(400).json({success: false, data: err});
+            res.status(500).json({success: false, data: err});
         } else if (story == null) {
             res.status(400).json({success: false, data: "Story with that id not found"});
         } else {
@@ -63,7 +63,7 @@ router.post('/upload/:storyId', upload, (req, res) => {
             // update story pointer
             story.storyPointer = req.file.id;
             story.save().catch(err => console.log(err));
-            res.json({success: true, data: null});
+            res.json({success: true});
         }
     });
 });
@@ -190,9 +190,64 @@ router.get('/stories', (req, res) => {
     Story.find({}, (err, stories) => {
         if (err != null) {
             console.log(err);
-            res.status(400).json({success: false, data: err});
+            res.status(500).json({success: false, data: err});
         } else {
             res.status(200).json({success: true, data: stories});
+        }
+    });
+});
+
+router.post('/add_edit_access', (req, res) => {
+    if(req.body.storyId == null) {
+        res.status(400).json({success: false, data: "No story ID provided"});
+        return;
+    }
+    if (req.body.email == null) {
+        res.status(400).json({success: false, data: "No email provided"});
+        return;
+    }
+    Story.findOne({_id: req.body.storyId}, (err, story) => {
+        if (err != null) {
+            console.log(err);
+            res.status(500).json({success: false, data: err});
+        } else if(story == null) {
+            res.status(400).json({success: false, data: "Story with that id not found"});
+        } else {
+            if (!story.editAccess.includes(req.body.email)) {
+                story.editAccess.push(req.body.email);
+                story.save();
+                res.status(200).json({success: true})
+            } else {
+                res.status(400).json({success: false, data: "User already has edit access"});
+            }
+        }
+    });
+});
+
+router.post('/remove_edit_access', (req, res) => {
+    if(req.body.storyId == null) {
+        res.status(400).json({success: false, data: "No story ID provided"});
+        return;
+    }
+    if (req.body.email == null) {
+        res.status(400).json({success: false, data: "No email provided"});
+        return;
+    }
+    Story.findOne({_id: req.body.storyId}, (err, story) => {
+        if (err != null) {
+            console.log(err);
+            res.status(500).json({success: false, data: err});
+        } else if(story == null) {
+            res.status(400).json({success: false, data: "Story with that id not found"});
+        } else {
+            let index = story.editAccess.indexOf(req.body.email);
+            if (index !== -1) {
+                story.editAccess.splice(index, 1);
+                story.save();
+                res.status(200).json({success: true})
+            } else {
+                res.status(400).json({success: false, data: "User doesn't have edit access"});
+            }
         }
     });
 });
@@ -218,9 +273,64 @@ router.get('/tags', (req, res) => {
     Story.distinct("tags", (err, tags) => {
         if (err != null) {
             console.log(err);
-            res.status(400).json({success: false, data: err});
+            res.status(500).json({success: false, data: err});
         } else {
             res.status(200).json({success: true, data: tags});
+        }
+    });
+});
+
+router.post('/add_tag', (req, res) => {
+    if(req.body.storyId == null) {
+        res.status(400).json({success: false, data: "No story ID provided"});
+        return;
+    }
+    if (req.body.tag == null) {
+        res.status(400).json({success: false, data: "No tag provided"});
+        return;
+    }
+    Story.findOne({_id: req.body.storyId}, (err, story) => {
+        if (err != null) {
+            console.log(err);
+            res.status(500).json({success: false, data: err});
+        } else if(story == null) {
+            res.status(400).json({success: false, data: "Story with that id not found"});
+        } else {
+            if (!story.tags.includes(req.body.ttag)) {
+                story.tags.push(req.body.tag);
+                story.save();
+                res.status(200).json({success: true})
+            } else {
+                res.status(400).json({success: false, data: "Story already has provided tag"});
+            }
+        }
+    });
+});
+
+router.post('/remove_tag', (req, res) => {
+    if(req.body.storyId == null) {
+        res.status(400).json({success: false, data: "No story ID provided"});
+        return;
+    }
+    if (req.body.tag == null) {
+        res.status(400).json({success: false, data: "No tag provided"});
+        return;
+    }
+    Story.findOne({_id: req.body.storyId}, (err, story) => {
+        if (err != null) {
+            console.log(err);
+            res.status(500).json({success: false, data: err});
+        } else if(story == null) {
+            res.status(400).json({success: false, data: "Story with that id not found"});
+        } else {
+            let index = story.tags.indexOf(req.body.tag);
+            if (index !== -1) {
+                story.tags.splice(index, 1);
+                story.save();
+                res.status(200).json({success: true})
+            } else {
+                res.status(400).json({success: false, data: "Story doesn't have provided tag"});
+            }
         }
     });
 });
@@ -262,7 +372,7 @@ router.post('/storiesWithTags', (req, res) => {
         Story.find({}, (err, stories) => {
             if (err != null) {
                 console.log(err);
-                res.status(400).json({success: false, data: err})
+                res.status(500).json({success: false, data: err})
             }
             res.status(200).json({success: true, data: stories});
         });
@@ -270,7 +380,7 @@ router.post('/storiesWithTags', (req, res) => {
         Story.find({tags: {$in: req.body.tags}},(err, stories) => {
             if (err != null) {
                 console.log(err);
-                res.status(400).json({success: false, data: err})
+                res.status(500).json({success: false, data: err})
             }
             res.status(200).json({success: true, data: stories});
         });
@@ -315,7 +425,7 @@ router.get('/storyFromId', (req, res) => {
         Story.find({_id: req.query.id}, (err, stories) => {
             if (err != null) {
                 console.log(err);
-                res.status(400).json({success: false, data: err});
+                res.status(500).json({success: false, data: err});
             } else if (stories.length == 0) {
                 res.status(400).json({success: false, data: "Story with that id not found"});
             } else {
@@ -332,7 +442,7 @@ router.get('/storiesByEditor', (req, res) => {
         Story.find({editAccess: req.query.userEmail}, (err, stories) => {
             if (err != null) {
                 console.log(err);
-                res.status(400).json({success: false, data: err});
+                res.status(500).json({success: false, data: err});
             } else if (stories.length == 0) {
                 res.status(400).json({success: false, data: "Story with that id not found"});
             } else {
